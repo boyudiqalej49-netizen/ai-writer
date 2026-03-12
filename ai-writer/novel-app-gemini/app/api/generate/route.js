@@ -10,7 +10,7 @@ export async function POST(req) {
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'Qwen/Qwen2.5-7B-Instruct',
+        model: 'Qwen/Qwen2.5-72B-Instruct',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
