@@ -1,6 +1,6 @@
 export async function POST(req) {
   try {
-    const { systemPrompt, userPrompt } = await req.json();
+    const { system: systemPrompt, user: userPrompt } = await req.json();
     const apiKey = process.env.OPENROUTER_API_KEY;
 
     const response = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
@@ -74,5 +74,3 @@ export async function POST(req) {
     });
   }
 }
-
-
