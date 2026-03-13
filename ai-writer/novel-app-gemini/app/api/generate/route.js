@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 export async function POST(req) {
   try {
     const { system: systemPrompt, user: userPrompt } = await req.json();
