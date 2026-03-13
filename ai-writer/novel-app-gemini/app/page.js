@@ -1,6 +1,6 @@
 "use client";
-import { useState, useRef } from "react";
- 
+import React, { useState, useRef, useEffect } from "react";
+
 const TRANSLATIONS = {
   zh: {
     name: "简体中文",
@@ -8,6 +8,7 @@ const TRANSLATIONS = {
     title1: "一键生成",
     title2: "小说 · 文案",
     subtitle: "输入想法，AI帮你写出完整内容",
+    authLabel: "已激活：剩余 30 天",
     modeLabel: "创作类型",
     modes: [
       { id: "novel", label: "📖 小说", desc: "完整故事情节" },
@@ -58,7 +59,7 @@ const TRANSLATIONS = {
       novel: "你是一位顶级小说作家，擅长各类题材。文字生动、情节紧凑、人物立体。直接输出小说正文，不要加任何说明或前缀。",
       copy: "你是顶级文案策划师，擅长各类营销文案。文案有感染力、转化率高。直接输出文案正文。",
       script: "你是专业编剧，擅长对话、场景、冲突。剧本真实有张力。直接输出剧本内容。",
-      post: "你是自媒体爆款文案专家，深度了解小红书、抖音平台和用户心理。直接输出内容正文。",
+      post: "你是自媒体爆款文案专家，深度了解小红书、抖音平台 and 用户心理。直接输出内容正文。",
     },
     userPrompts: {
       novel: (idea, sel, len, style, extra) => `根据以下想法，创作一篇完整小说。\n\n想法：${idea}\n题材：${sel||"不限"}\n字数：${len}\n风格：${style||"不限"}\n要求：${extra||"无"}\n\n直接从标题开始输出小说内容，要有吸引人的开头、起伏的情节、有力量的结尾。`,
@@ -73,6 +74,7 @@ const TRANSLATIONS = {
     title1: "一鍵生成",
     title2: "小說 · 文案",
     subtitle: "輸入想法，AI幫你寫出完整內容",
+    authLabel: "已激活：剩餘 30 天",
     modeLabel: "創作類型",
     modes: [
       { id: "novel", label: "📖 小說", desc: "完整故事情節" },
@@ -138,6 +140,7 @@ const TRANSLATIONS = {
     title1: "Generate Instantly",
     title2: "Stories · Copies",
     subtitle: "Enter your idea, AI writes the full content",
+    authLabel: "Activated: 30 Days Remaining",
     modeLabel: "Content Type",
     modes: [
       { id: "novel", label: "📖 Story", desc: "Full narrative" },
@@ -203,6 +206,7 @@ const TRANSLATIONS = {
     title1: "Buat Sekarang",
     title2: "Cerita · Konten",
     subtitle: "Masukkan ide, AI menulis konten lengkap untuk Anda",
+    authLabel: "Aktif: Sisa 30 Hari",
     modeLabel: "Jenis Konten",
     modes: [
       { id: "novel", label: "📖 Cerita", desc: "Narasi lengkap" },
@@ -263,13 +267,13 @@ const TRANSLATIONS = {
     },
   },
 };
- 
+
 const S = {
   bg: "#0d0d14", surface: "#13131f", card: "#1c1c2e", border: "#2d2d45",
   accent: "#7c6ff7", accent2: "#f06292", gold: "#fbbf24",
   text: "#eeeef5", muted: "#6b6b90", success: "#34d399",
 };
- 
+
 function Tag({ label, active, onClick }) {
   return (
     <button onClick={onClick} style={{
@@ -281,7 +285,7 @@ function Tag({ label, active, onClick }) {
     }}>{label}</button>
   );
 }
- 
+
 function CopyBtn({ text, t }) {
   const [done, setDone] = useState(false);
   const copy = () => {
@@ -299,14 +303,25 @@ function CopyBtn({ text, t }) {
     }}>{done ? t.btnCopied : t.btnCopy}</button>
   );
 }
- 
+
 const LANG_FLAGS = { zh: "🇨🇳", tw: "🇹🇼", en: "🇺🇸", id: "🇮🇩" };
- 
+
 export default function Home() {
   const [lang, setLang] = useState("zh");
   const [showLangMenu, setShowLangMenu] = useState(false);
+  const [daysRemaining, setDaysRemaining] = useState(null);
+  
   const t = TRANSLATIONS[lang];
- 
+
+  useEffect(() => {
+    // 检查是否有激活 Cookie
+    const cookies = document.cookie.split('; ');
+    const token = cookies.find(row => row.startsWith('user_access_token='));
+    if (token) {
+      setDaysRemaining(30);
+    }
+  }, []);
+
   const [mode, setMode] = useState("novel");
   const [idea, setIdea] = useState("");
   const [genre, setGenre] = useState("");
@@ -320,14 +335,14 @@ export default function Home() {
   const [err, setErr] = useState("");
   const [wordCount, setWordCount] = useState(0);
   const outputRef = useRef(null);
- 
+
   const generate = async () => {
     if (!idea.trim()) { setErr(t.errEmpty); return; }
     setErr(""); setLoading(true); setOutput(""); setWordCount(0);
- 
+
     const lenLabel = t.lengthMap[length];
     const currentSel = mode === "novel" || mode === "script" ? genre : copyType;
- 
+
     try {
       setStreaming(true);
       const res = await fetch("/api/generate", {
@@ -338,13 +353,13 @@ export default function Home() {
           user: t.userPrompts[mode](idea, currentSel, lenLabel, style, extraNote),
         }),
       });
- 
+
       if (!res.ok) throw new Error(t.errRetry);
- 
+
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let full = "";
- 
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -370,17 +385,17 @@ export default function Home() {
       setStreaming(false);
     }
   };
- 
+
   const currentTags = mode === "novel" || mode === "script" ? t.genres : t.copyTypes;
   const currentSel = mode === "novel" || mode === "script" ? genre : copyType;
   const setCurrentSel = mode === "novel" || mode === "script" ? setGenre : setCopyType;
- 
+
   const selectStyle = {
     width: "100%", background: S.surface, border: `1px solid ${S.border}`,
     color: S.text, padding: "9px 10px", borderRadius: 8,
     fontSize: 12, fontFamily: "inherit", outline: "none",
   };
- 
+
   return (
     <div style={{ background: S.bg, minHeight: "100vh", color: S.text, fontFamily: "system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif" }}>
       <style>{`
@@ -396,7 +411,7 @@ export default function Home() {
           .right-panel { min-height: 400px !important; }
         }
       `}</style>
- 
+
       {/* Language Switcher */}
       <div style={{ position: "fixed", top: 16, right: 16, zIndex: 100 }}>
         <button onClick={() => setShowLangMenu(!showLangMenu)} style={{
@@ -426,9 +441,9 @@ export default function Home() {
           </div>
         )}
       </div>
- 
+
       <div className="layout" style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 16px 60px", display: "grid", gridTemplateColumns: "320px 1fr", gap: 16, minHeight: "100vh" }}>
- 
+
         {/* LEFT */}
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div>
@@ -438,8 +453,22 @@ export default function Home() {
               <span style={{ background: "linear-gradient(135deg,#7c6ff7,#f06292)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{t.title2}</span>
             </h1>
             <p style={{ fontSize: 12, color: S.muted }}>{t.subtitle}</p>
+            
+            {/* 授权剩余时间显示 */}
+            {daysRemaining && (
+              <div style={{ 
+                marginTop: 12, padding: "6px 12px", background: "rgba(52,211,153,0.05)", 
+                border: "1px solid rgba(52,211,153,0.2)", borderRadius: 8, 
+                display: "inline-flex", alignItems: "center", gap: 8 
+              }}>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: S.success }}></div>
+                <span style={{ fontSize: 11, color: S.success, fontWeight: 500 }}>
+                  {t.authLabel}
+                </span>
+              </div>
+            )}
           </div>
- 
+
           <div style={{ background: S.card, border: `1px solid ${S.border}`, borderRadius: 14, padding: 14 }}>
             <div style={{ fontSize: 11, color: S.muted, letterSpacing: 2, textTransform: "uppercase", marginBottom: 10 }}>{t.modeLabel}</div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
@@ -456,7 +485,7 @@ export default function Home() {
               ))}
             </div>
           </div>
- 
+
           <div style={{ background: S.card, border: `1px solid ${S.border}`, borderRadius: 14, padding: 16, flex: 1, display: "flex", flexDirection: "column", gap: 12 }}>
             <div>
               <label style={{ fontSize: 12, color: S.muted, display: "block", marginBottom: 6 }}>{t.ideaLabel}</label>
@@ -464,7 +493,7 @@ export default function Home() {
                 placeholder={t.ideaPlaceholders[mode]}
                 style={{ width: "100%", background: S.surface, border: `1px solid ${S.border}`, color: S.text, padding: "10px 12px", borderRadius: 10, fontSize: 13, fontFamily: "inherit", resize: "vertical", lineHeight: 1.6 }} />
             </div>
- 
+
             <div>
               <label style={{ fontSize: 12, color: S.muted, display: "block", marginBottom: 8 }}>
                 {mode === "novel" || mode === "script" ? t.genreLabel : mode === "post" ? t.postLabel : t.copyTypeLabel}
@@ -475,7 +504,7 @@ export default function Home() {
                 ))}
               </div>
             </div>
- 
+
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
               <div>
                 <label style={{ fontSize: 12, color: S.muted, display: "block", marginBottom: 6 }}>{t.lengthLabel}</label>
@@ -491,16 +520,16 @@ export default function Home() {
                 </select>
               </div>
             </div>
- 
+
             <div>
               <label style={{ fontSize: 12, color: S.muted, display: "block", marginBottom: 6 }}>{t.extraLabel}</label>
               <textarea value={extraNote} onChange={e => setExtraNote(e.target.value)} rows={2}
                 placeholder={t.extraPlaceholder}
                 style={{ width: "100%", background: S.surface, border: `1px solid ${S.border}`, color: S.text, padding: "9px 12px", borderRadius: 10, fontSize: 13, fontFamily: "inherit", resize: "none" }} />
             </div>
- 
+
             {err && <div style={{ color: "#f87171", fontSize: 13, padding: "8px 12px", background: "rgba(248,113,113,0.08)", borderRadius: 8 }}>{err}</div>}
- 
+
             <button onClick={generate} disabled={loading} style={{
               width: "100%", padding: 14, marginTop: "auto",
               background: loading ? "#2a2a3e" : "linear-gradient(135deg,#7c6ff7,#f06292)",
@@ -512,7 +541,7 @@ export default function Home() {
             </button>
           </div>
         </div>
- 
+
         {/* RIGHT */}
         <div className="right-panel" style={{ background: S.card, border: `1px solid ${S.border}`, borderRadius: 14, display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 600 }}>
           <div style={{ padding: "14px 20px", borderBottom: `1px solid ${S.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
@@ -534,7 +563,7 @@ export default function Home() {
               </div>
             )}
           </div>
- 
+
           <div ref={outputRef} style={{ flex: 1, overflowY: "auto", padding: 24 }}>
             {!output && !loading && (
               <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: S.muted, gap: 16 }}>
@@ -550,14 +579,14 @@ export default function Home() {
                 </div>
               </div>
             )}
- 
+
             {loading && !output && (
               <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
                 <div style={{ width: 48, height: 48, border: `3px solid ${S.border}`, borderTopColor: S.accent, borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
                 <div style={{ fontSize: 14, color: S.muted }}>{t.thinking}</div>
               </div>
             )}
- 
+
             {output && (
               <div style={{ animation: "fadeIn 0.3s ease", lineHeight: 2, fontSize: 15, whiteSpace: "pre-wrap", wordBreak: "break-word", color: S.text }}>
                 {output}
@@ -570,4 +599,3 @@ export default function Home() {
     </div>
   );
 }
- 
