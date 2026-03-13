@@ -1,8 +1,11 @@
 "use client";
-import { useState, useRef } from "react";
- 
+import { useState, useRef, useEffect } from "react";
+import { ShieldCheck, Zap, Clock } from "lucide-react"; // 增加了 Clock 图标
+
+// ... 这里保持你原来的 TRANSLATIONS 和 S 常量不变 ...
 const TRANSLATIONS = {
   zh: {
+    // ... 原有内容 ...
     name: "简体中文",
     badge: "✦ AI创作工坊",
     title1: "一键生成",
@@ -66,8 +69,12 @@ const TRANSLATIONS = {
       script: (idea, sel, len, style, extra) => `根据以下想法创作剧本。\n\n故事：${idea}\n风格：${sel||"不限"}\n长度：${len}\n风格：${style||"不限"}\n要求：${extra||"无"}\n\n格式：场景说明 + 人物对话（角色名：台词）+ 动作指示，有明确的戏剧冲突。`,
       post: (idea, sel, len, style, extra) => `根据以下想法创作爆款自媒体内容。\n\n内容：${idea}\n平台：${sel||"小红书"}\n字数：${len}\n风格：${style||"不限"}\n要求：${extra||"无"}\n\n要求：开头3行抓眼球、多用换行和emoji、有干货或情感共鸣、结尾引导互动、附上5个话题标签。`,
     },
+    // 新增翻译
+    vipTag: "专业版",
+    timeRemaining: "剩余时间"
   },
   tw: {
+    // ... 原有繁体内容 ...
     name: "繁體中文",
     badge: "✦ AI創作工坊",
     title1: "一鍵生成",
@@ -131,8 +138,11 @@ const TRANSLATIONS = {
       script: (idea, sel, len, style, extra) => `根據以下想法創作劇本。\n\n故事：${idea}\n風格：${sel||"不限"}\n長度：${len}\n風格：${style||"不限"}\n要求：${extra||"無"}\n\n格式：場景說明 + 人物對話（角色名：台詞）+ 動作指示，有明確的戲劇衝突。`,
       post: (idea, sel, len, style, extra) => `根據以下想法創作爆款社群內容。\n\n內容：${idea}\n平台：${sel||"Instagram"}\n字數：${len}\n風格：${style||"不限"}\n要求：${extra||"無"}\n\n要求：開頭3行抓眼球、多用換行和emoji、有乾貨或情感共鳴、結尾引導互動、附上5個話題標籤。`,
     },
+    vipTag: "專業版",
+    timeRemaining: "剩餘時間"
   },
   en: {
+    // ... 原有英文内容 ...
     name: "English",
     badge: "✦ AI Writer Studio",
     title1: "Generate Instantly",
@@ -196,8 +206,11 @@ const TRANSLATIONS = {
       script: (idea, sel, len, style, extra) => `Write a script based on the following.\n\nStory: ${idea}\nGenre: ${sel||"Any"}\nLength: ${len}\nStyle: ${style||"Any"}\nNotes: ${extra||"None"}\n\nFormat: scene descriptions + character dialogue (CHARACTER NAME: dialogue) + stage directions, with clear dramatic conflict.`,
       post: (idea, sel, len, style, extra) => `Write a viral social media post based on the following.\n\nContent: ${idea}\nPlatform: ${sel||"Instagram"}\nLength: ${len}\nStyle: ${style||"Any"}\nNotes: ${extra||"None"}\n\nRequirements: hook in first 3 lines, use line breaks and emojis, include value or emotional resonance, end with engagement CTA, add 5 relevant hashtags.`,
     },
+    vipTag: "PRO",
+    timeRemaining: "Time Left"
   },
   id: {
+    // ... 原有印尼语内容 ...
     name: "Indonesia",
     badge: "✦ Studio Penulis AI",
     title1: "Buat Sekarang",
@@ -261,15 +274,18 @@ const TRANSLATIONS = {
       script: (idea, sel, len, style, extra) => `Tulis skrip berdasarkan berikut ini.\n\nCerita: ${idea}\nGenre: ${sel||"Bebas"}\nPanjang: ${len}\nGaya: ${style||"Bebas"}\nCatatan: ${extra||"Tidak ada"}\n\nFormat: deskripsi adegan + dialog karakter (NAMA KARAKTER: dialog) + petunjuk aksi, dengan konflik dramatis yang jelas.`,
       post: (idea, sel, len, style, extra) => `Tulis postingan media sosial viral berdasarkan berikut ini.\n\nKonten: ${idea}\nPlatform: ${sel||"Instagram"}\nPanjang: ${len}\nGaya: ${style||"Bebas"}\nCatatan: ${extra||"Tidak ada"}\n\nPersyaratan: hook di 3 baris pertama, gunakan baris baru dan emoji, sertakan nilai atau resonansi emosional, akhiri dengan CTA engagement, tambahkan 5 hashtag relevan.`,
     },
+    vipTag: "PRO",
+    timeRemaining: "Sisa Waktu"
   },
 };
- 
+
 const S = {
   bg: "#0d0d14", surface: "#13131f", card: "#1c1c2e", border: "#2d2d45",
   accent: "#7c6ff7", accent2: "#f06292", gold: "#fbbf24",
   text: "#eeeef5", muted: "#6b6b90", success: "#34d399",
 };
- 
+
+// ... 原有的 Tag 和 CopyBtn 组件保持不变 ...
 function Tag({ label, active, onClick }) {
   return (
     <button onClick={onClick} style={{
@@ -281,7 +297,7 @@ function Tag({ label, active, onClick }) {
     }}>{label}</button>
   );
 }
- 
+
 function CopyBtn({ text, t }) {
   const [done, setDone] = useState(false);
   const copy = () => {
@@ -299,14 +315,42 @@ function CopyBtn({ text, t }) {
     }}>{done ? t.btnCopied : t.btnCopy}</button>
   );
 }
- 
+
 const LANG_FLAGS = { zh: "🇨🇳", tw: "🇹🇼", en: "🇺🇸", id: "🇮🇩" };
- 
+
 export default function Home() {
   const [lang, setLang] = useState("zh");
   const [showLangMenu, setShowLangMenu] = useState(false);
   const t = TRANSLATIONS[lang];
- 
+
+  // --- 新增：倒计时逻辑 ---
+  const [timeLeft, setTimeLeft] = useState("");
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const cookies = document.cookie.split('; ');
+      const actTimeStr = cookies.find(row => row.startsWith('activation_time='))?.split('=')[1];
+      
+      if (actTimeStr) {
+        const activationTime = parseInt(actTimeStr);
+        const expiryTime = activationTime + (30 * 24 * 60 * 60 * 1000); // 30天后到期
+        const diff = expiryTime - Date.now();
+
+        if (diff <= 0) {
+          setTimeLeft("Expired");
+          window.location.reload(); // 到期自动刷新拦截
+        } else {
+          const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+          const m = Math.floor((diff / (1000 * 60)) % 60);
+          const s = Math.floor((diff / 1000) % 60);
+          setTimeLeft(`${d}d ${h}h ${m}m ${s}s`);
+        }
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+  // ----------------------
+
   const [mode, setMode] = useState("novel");
   const [idea, setIdea] = useState("");
   const [genre, setGenre] = useState("");
@@ -320,14 +364,14 @@ export default function Home() {
   const [err, setErr] = useState("");
   const [wordCount, setWordCount] = useState(0);
   const outputRef = useRef(null);
- 
+
   const generate = async () => {
     if (!idea.trim()) { setErr(t.errEmpty); return; }
     setErr(""); setLoading(true); setOutput(""); setWordCount(0);
- 
+
     const lenLabel = t.lengthMap[length];
     const currentSel = mode === "novel" || mode === "script" ? genre : copyType;
- 
+
     try {
       setStreaming(true);
       const res = await fetch("/api/generate", {
@@ -338,13 +382,13 @@ export default function Home() {
           user: t.userPrompts[mode](idea, currentSel, lenLabel, style, extraNote),
         }),
       });
- 
+
       if (!res.ok) throw new Error(t.errRetry);
- 
+
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let full = "";
- 
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -370,17 +414,17 @@ export default function Home() {
       setStreaming(false);
     }
   };
- 
+
   const currentTags = mode === "novel" || mode === "script" ? t.genres : t.copyTypes;
   const currentSel = mode === "novel" || mode === "script" ? genre : copyType;
   const setCurrentSel = mode === "novel" || mode === "script" ? setGenre : setCopyType;
- 
+
   const selectStyle = {
     width: "100%", background: S.surface, border: `1px solid ${S.border}`,
     color: S.text, padding: "9px 10px", borderRadius: 8,
     fontSize: 12, fontFamily: "inherit", outline: "none",
   };
- 
+
   return (
     <div style={{ background: S.bg, minHeight: "100vh", color: S.text, fontFamily: "system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif" }}>
       <style>{`
@@ -396,9 +440,22 @@ export default function Home() {
           .right-panel { min-height: 400px !important; }
         }
       `}</style>
- 
-      {/* Language Switcher */}
-      <div style={{ position: "fixed", top: 16, right: 16, zIndex: 100 }}>
+
+      {/* 顶部工具栏：语言切换 + 倒计时 */}
+      <div style={{ position: "fixed", top: 16, right: 16, zIndex: 100, display: "flex", gap: 10 }}>
+        {/* 倒计时显示组件 */}
+        {timeLeft && (
+          <div style={{
+            background: "rgba(52,211,153,0.1)", border: "1px solid rgba(52,211,153,0.3)", 
+            color: S.success, padding: "8px 14px", borderRadius: 10, fontSize: 13,
+            display: "flex", alignItems: "center", gap: 8, backdropFilter: "blur(10px)"
+          }}>
+            <Clock size={14} />
+            <span style={{opacity: 0.8}}>{t.timeRemaining}:</span>
+            <b style={{fontFamily: "monospace"}}>{timeLeft}</b>
+          </div>
+        )}
+
         <button onClick={() => setShowLangMenu(!showLangMenu)} style={{
           background: S.card, border: `1px solid ${S.border}`, color: S.text,
           padding: "8px 14px", borderRadius: 10, cursor: "pointer",
@@ -426,20 +483,25 @@ export default function Home() {
           </div>
         )}
       </div>
- 
+
       <div className="layout" style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 16px 60px", display: "grid", gridTemplateColumns: "320px 1fr", gap: 16, minHeight: "100vh" }}>
- 
+
         {/* LEFT */}
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div>
-            <div style={{ display: "inline-block", background: "rgba(124,111,247,0.1)", border: "1px solid rgba(124,111,247,0.3)", color: S.accent, fontSize: 11, letterSpacing: 2, padding: "4px 14px", borderRadius: 100, marginBottom: 10 }}>{t.badge}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+              <div style={{ background: "rgba(124,111,247,0.1)", border: "1px solid rgba(124,111,247,0.3)", color: S.accent, fontSize: 11, letterSpacing: 2, padding: "4px 14px", borderRadius: 100 }}>{t.badge}</div>
+              <div style={{ background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.3)", color: S.gold, fontSize: 10, padding: "4px 10px", borderRadius: 100, display: "flex", alignItems: "center", gap: 4 }}>
+                <ShieldCheck size={12} /> {t.vipTag}
+              </div>
+            </div>
             <h1 style={{ fontSize: 24, fontWeight: 900, lineHeight: 1.2, marginBottom: 4 }}>
               {t.title1}<br />
               <span style={{ background: "linear-gradient(135deg,#7c6ff7,#f06292)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{t.title2}</span>
             </h1>
             <p style={{ fontSize: 12, color: S.muted }}>{t.subtitle}</p>
           </div>
- 
+
           <div style={{ background: S.card, border: `1px solid ${S.border}`, borderRadius: 14, padding: 14 }}>
             <div style={{ fontSize: 11, color: S.muted, letterSpacing: 2, textTransform: "uppercase", marginBottom: 10 }}>{t.modeLabel}</div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
@@ -456,7 +518,7 @@ export default function Home() {
               ))}
             </div>
           </div>
- 
+
           <div style={{ background: S.card, border: `1px solid ${S.border}`, borderRadius: 14, padding: 16, flex: 1, display: "flex", flexDirection: "column", gap: 12 }}>
             <div>
               <label style={{ fontSize: 12, color: S.muted, display: "block", marginBottom: 6 }}>{t.ideaLabel}</label>
@@ -464,7 +526,7 @@ export default function Home() {
                 placeholder={t.ideaPlaceholders[mode]}
                 style={{ width: "100%", background: S.surface, border: `1px solid ${S.border}`, color: S.text, padding: "10px 12px", borderRadius: 10, fontSize: 13, fontFamily: "inherit", resize: "vertical", lineHeight: 1.6 }} />
             </div>
- 
+
             <div>
               <label style={{ fontSize: 12, color: S.muted, display: "block", marginBottom: 8 }}>
                 {mode === "novel" || mode === "script" ? t.genreLabel : mode === "post" ? t.postLabel : t.copyTypeLabel}
@@ -475,7 +537,7 @@ export default function Home() {
                 ))}
               </div>
             </div>
- 
+
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
               <div>
                 <label style={{ fontSize: 12, color: S.muted, display: "block", marginBottom: 6 }}>{t.lengthLabel}</label>
@@ -491,16 +553,16 @@ export default function Home() {
                 </select>
               </div>
             </div>
- 
+
             <div>
               <label style={{ fontSize: 12, color: S.muted, display: "block", marginBottom: 6 }}>{t.extraLabel}</label>
               <textarea value={extraNote} onChange={e => setExtraNote(e.target.value)} rows={2}
                 placeholder={t.extraPlaceholder}
                 style={{ width: "100%", background: S.surface, border: `1px solid ${S.border}`, color: S.text, padding: "9px 12px", borderRadius: 10, fontSize: 13, fontFamily: "inherit", resize: "none" }} />
             </div>
- 
+
             {err && <div style={{ color: "#f87171", fontSize: 13, padding: "8px 12px", background: "rgba(248,113,113,0.08)", borderRadius: 8 }}>{err}</div>}
- 
+
             <button onClick={generate} disabled={loading} style={{
               width: "100%", padding: 14, marginTop: "auto",
               background: loading ? "#2a2a3e" : "linear-gradient(135deg,#7c6ff7,#f06292)",
@@ -512,7 +574,7 @@ export default function Home() {
             </button>
           </div>
         </div>
- 
+
         {/* RIGHT */}
         <div className="right-panel" style={{ background: S.card, border: `1px solid ${S.border}`, borderRadius: 14, display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 600 }}>
           <div style={{ padding: "14px 20px", borderBottom: `1px solid ${S.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
@@ -534,7 +596,7 @@ export default function Home() {
               </div>
             )}
           </div>
- 
+
           <div ref={outputRef} style={{ flex: 1, overflowY: "auto", padding: 24 }}>
             {!output && !loading && (
               <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: S.muted, gap: 16 }}>
@@ -550,14 +612,14 @@ export default function Home() {
                 </div>
               </div>
             )}
- 
+
             {loading && !output && (
               <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
                 <div style={{ width: 48, height: 48, border: `3px solid ${S.border}`, borderTopColor: S.accent, borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
                 <div style={{ fontSize: 14, color: S.muted }}>{t.thinking}</div>
               </div>
             )}
- 
+
             {output && (
               <div style={{ animation: "fadeIn 0.3s ease", lineHeight: 2, fontSize: 15, whiteSpace: "pre-wrap", wordBreak: "break-word", color: S.text }}>
                 {output}
@@ -570,4 +632,3 @@ export default function Home() {
     </div>
   );
 }
- 
