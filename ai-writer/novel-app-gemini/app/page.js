@@ -7,7 +7,7 @@ const TRANSLATIONS = {
     name: "简体中文",
     badge: "✦ AI创作工坊",
     title1: "一键生成",
-    title2: "小说 · 文案",
+    title2: "小说 · 论文 · 问答",
     subtitle: "输入想法，AI帮你写出完整内容",
     modeLabel: "创作类型",
     modes: [
@@ -15,20 +15,28 @@ const TRANSLATIONS = {
       { id: "copy", label: "✍️ 文案", desc: "营销推广文字" },
       { id: "script", label: "🎬 剧本", desc: "对话场景脚本" },
       { id: "post", label: "📱 种草", desc: "小红书/抖音文案" },
+      { id: "paper", label: "🎓 论文", desc: "严谨学术文章" },
+      { id: "qa", label: "💬 问答", desc: "客观事实解答" },
     ],
-    ideaLabel: "💡 你的想法 *",
+    ideaLabel: "💡 你的想法 / 问题 *",
     ideaPlaceholders: {
       novel: "例如：一个失忆侦探发现自己就是凶手...",
       copy: "例如：主打成分护肤的精华液，目标用户25-35岁女性...",
       script: "例如：两个多年未见的老友重逢，发现彼此都变了...",
       post: "例如：用番茄工作法让效率翻倍的亲身经历...",
+      paper: "例如：探讨人工智能在医疗领域的伦理问题...",
+      qa: "例如：量子力学的基本原理是什么？",
     },
     genreLabel: "题材类型",
     copyTypeLabel: "文案类型",
     postLabel: "目标平台",
+    paperLabel: "论文类型",
+    qaLabel: "解答类型",
     genres: ["言情", "悬疑", "玄幻", "都市", "历史", "科幻", "恐怖", "励志"],
     copyTypes: ["产品推广", "品牌故事", "活动营销", "朋友圈", "广告语", "软文"],
     postTypes: ["小红书", "抖音", "微信公众号", "微博", "视频号"],
+    paperTypes: ["期末论文", "开题报告", "文献综述", "学术期刊", "毕业设计"],
+    qaTypes: ["通俗科普", "专业解析", "分点说明", "深入探讨", "简明扼要"],
     lengthLabel: "字数",
     styleLabel: "风格",
     extraLabel: "额外要求（选填）",
@@ -38,20 +46,20 @@ const TRANSLATIONS = {
       { v: "medium", l: "中篇（1500字）" },
       { v: "long", l: "长篇（3000字）" },
     ],
-    styles: ["正式严肃", "轻松幽默", "文艺感性", "犀利直接", "温暖治愈", "悬疑紧张"],
+    styles: ["正式严肃", "轻松幽默", "文艺感性", "犀利直接", "温暖治愈", "客观严谨"],
     styleDefault: "不限风格",
     btnGenerate: "✨ 开始创作",
     btnGenerating: "⏳ 创作中...",
     btnCopy: "复制全文",
     btnCopied: "✓ 已复制",
     resultLabel: "创作结果",
-    resultLabels: { novel: "📖 小说正文", copy: "✍️ 文案内容", script: "🎬 剧本内容", post: "📱 种草内容" },
+    resultLabels: { novel: "📖 小说正文", copy: "✍️ 文案内容", script: "🎬 剧本内容", post: "📱 种草内容", paper: "🎓 论文正文", qa: "💬 专业解答" },
     streaming: "正在创作...",
-    placeholder1: "在左侧输入你的想法",
-    placeholder2: "AI 将为你生成完整内容",
-    tags: ["灵感无限", "流畅输出", "一键复制"],
-    thinking: "AI 正在构思创作...",
-    errEmpty: "请输入你的想法或创意",
+    placeholder1: "在左侧输入你的想法或问题",
+    placeholder2: "AI 将为你生成高质量内容",
+    tags: ["灵感无限", "真实客观", "一键复制"],
+    thinking: "AI 正在构思逻辑与查阅知识库...",
+    errEmpty: "请输入你的想法或问题",
     errFail: "生成失败：",
     errRetry: "请求失败，请稍后重试",
     lengthMap: { short: "500字左右", medium: "1500字左右", long: "3000字左右" },
@@ -60,12 +68,16 @@ const TRANSLATIONS = {
       copy: "你是顶级文案策划师，擅长各类营销文案。文案有感染力、转化率高。直接输出文案正文。",
       script: "你是专业编剧，擅长对话、场景、冲突。剧本真实有张力。直接输出剧本内容。",
       post: "你是自媒体爆款文案专家，深度了解小红书、抖音平台和用户心理。直接输出内容正文。",
+      paper: "你是一位严谨的顶级学术专家。撰写论文时必须遵守学术规范：结构完整（包含摘要、引言、正文论述、结论），逻辑严密，论据充分。语言必须极其专业、客观、准确，严禁使用网络用语、空话或套话。请直接输出高质量的学术论文正文。",
+      qa: "你是一个拥有渊博知识、极其严谨客观的百科全书专家。回答用户问题时必须100%基于真实客观存在的事实，条理清晰，直击核心。如果遇到不确定的数据或事实，必须明确指出，绝不允许任何捏造、猜测或幻觉。直接输出解答内容。",
     },
     userPrompts: {
       novel: (idea, sel, len, style, extra) => `根据以下想法，创作一篇完整小说。\n\n想法：${idea}\n题材：${sel||"不限"}\n字数：${len}\n风格：${style||"不限"}\n要求：${extra||"无"}\n\n直接从标题开始输出小说内容，要有吸引人的开头、起伏的情节、有力量的结尾。`,
       copy: (idea, sel, len, style, extra) => `根据以下需求，创作专业文案。\n\n需求：${idea}\n类型：${sel||"通用推广"}\n字数：${len}\n风格：${style||"不限"}\n要求：${extra||"无"}\n\n要求标题吸引眼球、痛点精准、卖点突出、有行动引导。`,
       script: (idea, sel, len, style, extra) => `根据以下想法创作剧本。\n\n故事：${idea}\n风格：${sel||"不限"}\n长度：${len}\n风格：${style||"不限"}\n要求：${extra||"无"}\n\n格式：场景说明 + 人物对话（角色名：台词）+ 动作指示，有明确的戏剧冲突。`,
       post: (idea, sel, len, style, extra) => `根据以下想法创作爆款自媒体内容。\n\n内容：${idea}\n平台：${sel||"小红书"}\n字数：${len}\n风格：${style||"不限"}\n要求：${extra||"无"}\n\n要求：开头3行抓眼球、多用换行和emoji、有干货或情感共鸣、结尾引导互动、附上5个话题标签。`,
+      paper: (idea, sel, len, style, extra) => `撰写高质量学术论文。\n\n研究主题：${idea}\n论文类型：${sel||"通用学术论文"}\n篇幅要求：${len}\n语言风格：${style||"学术严谨"}\n额外要求：${extra||"无"}\n\n请直接开始输出论文正文。`,
+      qa: (idea, sel, len, style, extra) => `回答以下问题。\n\n问题：${idea}\n解答类型：${sel||"专业解析"}\n详细程度：${len}\n语言风格：${style||"客观严谨"}\n补充说明：${extra||"无"}\n\n请基于真实事实，直接给出高质量解答。`,
     },
     vipTag: "专业版",
     timeRemaining: "剩余时间"
@@ -74,7 +86,7 @@ const TRANSLATIONS = {
     name: "繁體中文",
     badge: "✦ AI創作工坊",
     title1: "一鍵生成",
-    title2: "小說 · 文案",
+    title2: "小說 · 論文 · 問答",
     subtitle: "輸入想法，AI幫你寫出完整內容",
     modeLabel: "創作類型",
     modes: [
@@ -82,20 +94,28 @@ const TRANSLATIONS = {
       { id: "copy", label: "✍️ 文案", desc: "行銷推廣文字" },
       { id: "script", label: "🎬 劇本", desc: "對話場景腳本" },
       { id: "post", label: "📱 種草", desc: "社群媒體文案" },
+      { id: "paper", label: "🎓 論文", desc: "嚴謹學術文章" },
+      { id: "qa", label: "💬 問答", desc: "客觀事實解答" },
     ],
-    ideaLabel: "💡 你的想法 *",
+    ideaLabel: "💡 你的想法 / 問題 *",
     ideaPlaceholders: {
       novel: "例如：一個失憶偵探發現自己就是兇手...",
       copy: "例如：主打成分護膚的精華液，目標用戶25-35歲女性...",
       script: "例如：兩個多年未見的老友重逢，發現彼此都變了...",
       post: "例如：用番茄工作法讓效率翻倍的親身經歷...",
+      paper: "例如：探討人工智慧在醫療領域的倫理問題...",
+      qa: "例如：量子力學的基本原理是什麼？",
     },
     genreLabel: "題材類型",
     copyTypeLabel: "文案類型",
     postLabel: "目標平台",
+    paperLabel: "論文類型",
+    qaLabel: "解答類型",
     genres: ["言情", "懸疑", "玄幻", "都市", "歷史", "科幻", "恐怖", "勵志"],
     copyTypes: ["產品推廣", "品牌故事", "活動行銷", "社群貼文", "廣告語", "軟文"],
     postTypes: ["Instagram", "Facebook", "YouTube", "TikTok", "Threads"],
+    paperTypes: ["期末論文", "開題報告", "文獻綜述", "學術期刊", "畢業設計"],
+    qaTypes: ["通俗科普", "專業解析", "分點說明", "深入探討", "簡明扼要"],
     lengthLabel: "字數",
     styleLabel: "風格",
     extraLabel: "額外要求（選填）",
@@ -105,20 +125,20 @@ const TRANSLATIONS = {
       { v: "medium", l: "中篇（1500字）" },
       { v: "long", l: "長篇（3000字）" },
     ],
-    styles: ["正式嚴肅", "輕鬆幽默", "文藝感性", "犀利直接", "溫暖療癒", "懸疑緊張"],
+    styles: ["正式嚴肅", "輕鬆幽默", "文藝感性", "犀利直接", "溫暖療癒", "客觀嚴謹"],
     styleDefault: "不限風格",
     btnGenerate: "✨ 開始創作",
     btnGenerating: "⏳ 創作中...",
     btnCopy: "複製全文",
     btnCopied: "✓ 已複製",
     resultLabel: "創作結果",
-    resultLabels: { novel: "📖 小說正文", copy: "✍️ 文案內容", script: "🎬 劇本內容", post: "📱 種草內容" },
+    resultLabels: { novel: "📖 小說正文", copy: "✍️ 文案內容", script: "🎬 劇本內容", post: "📱 種草內容", paper: "🎓 論文正文", qa: "💬 專業解答" },
     streaming: "正在創作...",
-    placeholder1: "在左側輸入你的想法",
+    placeholder1: "在左側輸入你的想法或問題",
     placeholder2: "AI 將為你生成完整內容",
-    tags: ["靈感無限", "流暢輸出", "一鍵複製"],
-    thinking: "AI 正在構思創作...",
-    errEmpty: "請輸入你的想法或創意",
+    tags: ["靈感無限", "真實客觀", "一鍵複製"],
+    thinking: "AI 正在構思邏輯...",
+    errEmpty: "請輸入你的想法或問題",
     errFail: "生成失敗：",
     errRetry: "請求失敗，請稍後重試",
     lengthMap: { short: "500字左右", medium: "1500字左右", long: "3000字左右" },
@@ -127,12 +147,16 @@ const TRANSLATIONS = {
       copy: "你是頂級文案策劃師，擅長各類行銷文案。文案有感染力、轉化率高。直接輸出文案正文。",
       script: "你是專業編劇，擅長對話、場景、衝突。劇本真實有張力。直接輸出劇本內容。",
       post: "你是社群媒體爆款文案專家，深度了解各平台和用戶心理。直接輸出內容正文。",
+      paper: "你是一位嚴謹的頂級學術專家。撰寫論文時必須遵守學術規範，結構完整，邏輯嚴密，論據充分。語言必須極其專業、客觀。直接輸出高質量學術論文正文。",
+      qa: "你是一個擁有淵博知識、極其嚴謹客觀的百科全書專家。回答問題必須100%基於真實客觀事實，如果遇到不確定事實必須明確指出，絕不捏造。直接輸出解答。",
     },
     userPrompts: {
       novel: (idea, sel, len, style, extra) => `根據以下想法，創作一篇完整小說。\n\n想法：${idea}\n題材：${sel||"不限"}\n字數：${len}\n風格：${style||"不限"}\n要求：${extra||"無"}\n\n直接從標題開始輸出小說內容，要有吸引人的開頭、起伏的情節、有力量的結尾。`,
       copy: (idea, sel, len, style, extra) => `根據以下需求，創作專業文案。\n\n需求：${idea}\n類型：${sel||"通用推廣"}\n字數：${len}\n風格：${style||"不限"}\n要求：${extra||"無"}\n\n要求標題吸引眼球、痛點精準、賣點突出、有行動引導。`,
       script: (idea, sel, len, style, extra) => `根據以下想法創作劇本。\n\n故事：${idea}\n風格：${sel||"不限"}\n長度：${len}\n風格：${style||"不限"}\n要求：${extra||"無"}\n\n格式：場景說明 + 人物對話（角色名：台詞）+ 動作指示，有明確的戲劇衝突。`,
       post: (idea, sel, len, style, extra) => `根據以下想法創作爆款社群內容。\n\n內容：${idea}\n平台：${sel||"Instagram"}\n字數：${len}\n風格：${style||"不限"}\n要求：${extra||"無"}\n\n要求：開頭3行抓眼球、多用換行和emoji、有乾貨或情感共鳴、結尾引導互動、附上5個話題標籤。`,
+      paper: (idea, sel, len, style, extra) => `撰寫高質量學術論文。\n\n研究主題：${idea}\n論文類型：${sel||"通用學術論文"}\n篇幅要求：${len}\n語言風格：${style||"學術嚴謹"}\n額外要求：${extra||"無"}\n\n請直接開始輸出論文正文。`,
+      qa: (idea, sel, len, style, extra) => `回答以下問題。\n\n問題：${idea}\n解答類型：${sel||"專業解析"}\n詳細程度：${len}\n語言風格：${style||"客觀嚴謹"}\n補充說明：${extra||"無"}\n\n請基於真實事實，直接給出高質量解答。`,
     },
     vipTag: "專業版",
     timeRemaining: "剩餘時間"
@@ -141,7 +165,7 @@ const TRANSLATIONS = {
     name: "English",
     badge: "✦ AI Writer Studio",
     title1: "Generate Instantly",
-    title2: "Stories · Copies",
+    title2: "Stories · Essays · Q&A",
     subtitle: "Enter your idea, AI writes the full content",
     modeLabel: "Content Type",
     modes: [
@@ -149,20 +173,28 @@ const TRANSLATIONS = {
       { id: "copy", label: "✍️ Copywriting", desc: "Marketing content" },
       { id: "script", label: "🎬 Script", desc: "Dialogue & scenes" },
       { id: "post", label: "📱 Social Post", desc: "Instagram / TikTok" },
+      { id: "paper", label: "🎓 Essay", desc: "Academic Paper" },
+      { id: "qa", label: "💬 Q&A", desc: "Factual Answers" },
     ],
-    ideaLabel: "💡 Your Idea *",
+    ideaLabel: "💡 Your Idea / Question *",
     ideaPlaceholders: {
       novel: "e.g. An amnesiac detective discovers he is the murderer...",
       copy: "e.g. A serum targeting skincare ingredients, for women 25-35...",
       script: "e.g. Two old friends reunite and realize they've both changed...",
       post: "e.g. How the Pomodoro technique doubled my productivity...",
+      paper: "e.g. The ethical implications of AI in healthcare...",
+      qa: "e.g. What is the theory of relativity?",
     },
     genreLabel: "Genre",
     copyTypeLabel: "Copy Type",
     postLabel: "Platform",
+    paperLabel: "Paper Type",
+    qaLabel: "Format",
     genres: ["Romance", "Mystery", "Fantasy", "Urban", "Historical", "Sci-Fi", "Horror", "Inspirational"],
     copyTypes: ["Product Promo", "Brand Story", "Event Marketing", "Social Post", "Tagline", "Native Ad"],
     postTypes: ["Instagram", "TikTok", "Twitter/X", "Facebook", "LinkedIn"],
+    paperTypes: ["Term Paper", "Proposal", "Literature Review", "Journal", "Thesis"],
+    qaTypes: ["Simple Explain", "Deep Dive", "Bullet Points", "Professional"],
     lengthLabel: "Length",
     styleLabel: "Style",
     extraLabel: "Extra Notes (Optional)",
@@ -172,20 +204,20 @@ const TRANSLATIONS = {
       { v: "medium", l: "Medium (~800 words)" },
       { v: "long", l: "Long (~1500 words)" },
     ],
-    styles: ["Formal", "Casual & Funny", "Literary", "Sharp & Direct", "Warm & Cozy", "Suspenseful"],
+    styles: ["Formal", "Casual & Funny", "Literary", "Sharp & Direct", "Warm & Cozy", "Academic"],
     styleDefault: "Any Style",
     btnGenerate: "✨ Generate",
     btnGenerating: "⏳ Writing...",
     btnCopy: "Copy All",
     btnCopied: "✓ Copied",
     resultLabel: "Result",
-    resultLabels: { novel: "📖 Story", copy: "✍️ Copy", script: "🎬 Script", post: "📱 Post" },
+    resultLabels: { novel: "📖 Story", copy: "✍️ Copy", script: "🎬 Script", post: "📱 Post", paper: "🎓 Academic Paper", qa: "💬 Answer" },
     streaming: "Writing...",
-    placeholder1: "Enter your idea on the left",
-    placeholder2: "AI will generate full content for you",
-    tags: ["Endless Ideas", "Smooth Output", "One-Click Copy"],
-    thinking: "AI is thinking...",
-    errEmpty: "Please enter your idea or topic",
+    placeholder1: "Enter your request",
+    placeholder2: "AI will generate it",
+    tags: ["Creative", "Factual", "Fast"],
+    thinking: "AI is gathering facts...",
+    errEmpty: "Please enter your idea or question",
     errFail: "Generation failed: ",
     errRetry: "Request failed, please try again",
     lengthMap: { short: "around 300 words", medium: "around 800 words", long: "around 1500 words" },
@@ -194,12 +226,16 @@ const TRANSLATIONS = {
       copy: "You are a world-class copywriter with expertise in marketing. Write persuasive, high-converting copy. Output only the copy text.",
       script: "You are a professional screenwriter skilled in dialogue, scenes, and conflict. Write realistic, gripping scripts. Output only the script.",
       post: "You are a viral social media content expert who understands platform psychology deeply. Output only the post content.",
+      paper: "You are a top academic expert. Write a rigorous, highly professional, and structurally complete academic paper. Language must be objective and evidence-based. Do not use fluff. Output the paper directly.",
+      qa: "You are a factual encyclopedia. Answers MUST be 100% based on facts. Be clear, objective, and direct. If unsure, state it clearly. No hallucinations allowed. Output the answer directly.",
     },
     userPrompts: {
       novel: (idea, sel, len, style, extra) => `Write a complete story based on the following.\n\nIdea: ${idea}\nGenre: ${sel||"Any"}\nLength: ${len}\nStyle: ${style||"Any"}\nNotes: ${extra||"None"}\n\nStart directly with the title and story. Include a compelling opening, rising action, and a powerful ending.`,
       copy: (idea, sel, len, style, extra) => `Write professional marketing copy based on the following.\n\nBrief: ${idea}\nType: ${sel||"General Promo"}\nLength: ${len}\nStyle: ${style||"Any"}\nNotes: ${extra||"None"}\n\nRequirements: eye-catching headline, precise pain points, clear benefits, strong call to action.`,
       script: (idea, sel, len, style, extra) => `Write a script based on the following.\n\nStory: ${idea}\nGenre: ${sel||"Any"}\nLength: ${len}\nStyle: ${style||"Any"}\nNotes: ${extra||"None"}\n\nFormat: scene descriptions + character dialogue (CHARACTER NAME: dialogue) + stage directions, with clear dramatic conflict.`,
       post: (idea, sel, len, style, extra) => `Write a viral social media post based on the following.\n\nContent: ${idea}\nPlatform: ${sel||"Instagram"}\nLength: ${len}\nStyle: ${style||"Any"}\nNotes: ${extra||"None"}\n\nRequirements: hook in first 3 lines, use line breaks and emojis, include value or emotional resonance, end with engagement CTA, add 5 relevant hashtags.`,
+      paper: (idea, sel, len, style, extra) => `Write an academic paper.\n\nTopic: ${idea}\nType: ${sel||"General"}\nLength: ${len}\nStyle: ${style||"Academic"}\nNotes: ${extra||"None"}`,
+      qa: (idea, sel, len, style, extra) => `Answer this question truthfully.\n\nQuestion: ${idea}\nFormat: ${sel||"Clear"}\nLength: ${len}\nNotes: ${extra||"None"}`,
     },
     vipTag: "PRO",
     timeRemaining: "Time Left"
@@ -208,7 +244,7 @@ const TRANSLATIONS = {
     name: "Indonesia",
     badge: "✦ Studio Penulis AI",
     title1: "Buat Sekarang",
-    title2: "Cerita · Konten",
+    title2: "Cerita · Esai · Q&A",
     subtitle: "Masukkan ide, AI menulis konten lengkap untuk Anda",
     modeLabel: "Jenis Konten",
     modes: [
@@ -216,20 +252,28 @@ const TRANSLATIONS = {
       { id: "copy", label: "✍️ Copywriting", desc: "Konten pemasaran" },
       { id: "script", label: "🎬 Skrip", desc: "Dialog & adegan" },
       { id: "post", label: "📱 Postingan", desc: "Instagram / TikTok" },
+      { id: "paper", label: "🎓 Esai", desc: "Makalah Akademik" },
+      { id: "qa", label: "💬 Q&A", desc: "Jawaban Faktual" },
     ],
-    ideaLabel: "💡 Ide Anda *",
+    ideaLabel: "💡 Ide / Pertanyaan Anda *",
     ideaPlaceholders: {
       novel: "mis. Seorang detektif amnesia menemukan bahwa dirinya sendiri adalah pembunuhnya...",
       copy: "mis. Serum perawatan kulit berbahan aktif, target wanita 25-35 tahun...",
       script: "mis. Dua sahabat lama bertemu kembali dan menyadari keduanya telah berubah...",
       post: "mis. Bagaimana teknik Pomodoro menggandakan produktivitas saya...",
+      paper: "mis. Dampak AI terhadap etika medis...",
+      qa: "mis. Apa itu teori relativitas?",
     },
     genreLabel: "Genre",
     copyTypeLabel: "Jenis Copy",
     postLabel: "Platform",
+    paperLabel: "Tipe Makalah",
+    qaLabel: "Format",
     genres: ["Romantis", "Misteri", "Fantasi", "Urban", "Sejarah", "Sci-Fi", "Horor", "Inspiratif"],
     copyTypes: ["Promosi Produk", "Kisah Brand", "Pemasaran Event", "Postingan Sosial", "Tagline", "Native Ad"],
     postTypes: ["Instagram", "TikTok", "Twitter/X", "Facebook", "YouTube"],
+    paperTypes: ["Makalah Akhir", "Proposal", "Tinjauan Pustaka", "Jurnal", "Skripsi"],
+    qaTypes: ["Penjelasan Sederhana", "Analisis Mendalam", "Poin-poin", "Profesional"],
     lengthLabel: "Panjang",
     styleLabel: "Gaya",
     extraLabel: "Catatan Tambahan (Opsional)",
@@ -239,20 +283,20 @@ const TRANSLATIONS = {
       { v: "medium", l: "Sedang (~800 kata)" },
       { v: "long", l: "Panjang (~1500 kata)" },
     ],
-    styles: ["Formal", "Santai & Lucu", "Sastrawi", "Tajam & Langsung", "Hangat & Nyaman", "Menegangkan"],
+    styles: ["Formal", "Santai & Lucu", "Sastrawi", "Tajam & Langsung", "Hangat & Nyaman", "Akademik"],
     styleDefault: "Gaya Bebas",
     btnGenerate: "✨ Buat Konten",
     btnGenerating: "⏳ Sedang menulis...",
     btnCopy: "Salin Semua",
     btnCopied: "✓ Tersalin",
     resultLabel: "Hasil",
-    resultLabels: { novel: "📖 Cerita", copy: "✍️ Copy", script: "🎬 Skrip", post: "📱 Postingan" },
+    resultLabels: { novel: "📖 Cerita", copy: "✍️ Copy", script: "🎬 Skrip", post: "📱 Postingan", paper: "🎓 Makalah", qa: "💬 Jawaban" },
     streaming: "Sedang menulis...",
-    placeholder1: "Masukkan ide Anda di sebelah kiri",
-    placeholder2: "AI akan membuat konten lengkap untuk Anda",
-    tags: ["Ide Tak Terbatas", "Output Lancar", "Salin Sekali Klik"],
-    thinking: "AI sedang berpikir...",
-    errEmpty: "Harap masukkan ide atau topik Anda",
+    placeholder1: "Masukkan permintaan Anda",
+    placeholder2: "AI akan membuat konten untuk Anda",
+    tags: ["Ide Tak Terbatas", "Faktual", "Salin Sekali Klik"],
+    thinking: "AI sedang mencari fakta...",
+    errEmpty: "Harap masukkan ide atau pertanyaan Anda",
     errFail: "Pembuatan gagal: ",
     errRetry: "Permintaan gagal, silakan coba lagi",
     lengthMap: { short: "sekitar 300 kata", medium: "sekitar 800 kata", long: "sekitar 1500 kata" },
@@ -261,12 +305,16 @@ const TRANSLATIONS = {
       copy: "Anda adalah copywriter kelas dunia dengan keahlian pemasaran. Tulis copy yang persuasif dan berkonversi tinggi. Output hanya teks copy.",
       script: "Anda adalah penulis skenario profesional yang ahli dalam dialog, adegan, dan konflik. Tulis skrip yang realistis dan mencekam. Output hanya skrip.",
       post: "Anda adalah pakar konten media sosial viral yang memahami psikologi platform. Output hanya konten postingan.",
+      paper: "Anda adalah pakar akademik tingkat atas. Tulis makalah akademik yang ketat, sangat profesional, dan terstruktur dengan baik. Bahasa harus objektif dan berdasarkan bukti. Jangan gunakan kata-kata kosong. Output teks langsung.",
+      qa: "Anda adalah ensiklopedia faktual. Jawaban HARUS 100% berdasarkan fakta. Jujur, objektif, dan langsung. Jika tidak yakin, katakan dengan jelas. Tidak boleh ada halusinasi. Output jawaban langsung.",
     },
     userPrompts: {
       novel: (idea, sel, len, style, extra) => `Tulis cerita lengkap berdasarkan berikut ini.\n\nIde: ${idea}\nGenre: ${sel||"Bebas"}\nPanjang: ${len}\nGaya: ${style||"Bebas"}\nCatatan: ${extra||"Tidak ada"}\n\nMulai langsung dengan judul dan cerita. Sertakan pembuka yang menarik, konflik yang membangun, dan akhir yang berkesan.`,
       copy: (idea, sel, len, style, extra) => `Tulis copy pemasaran profesional berdasarkan berikut ini.\n\nBrief: ${idea}\nJenis: ${sel||"Promosi Umum"}\nPanjang: ${len}\nGaya: ${style||"Bebas"}\nCatatan: ${extra||"Tidak ada"}\n\nPersyaratan: judul yang menarik perhatian, pain point yang tepat, manfaat yang jelas, call to action yang kuat.`,
       script: (idea, sel, len, style, extra) => `Tulis skrip berdasarkan berikut ini.\n\nCerita: ${idea}\nGenre: ${sel||"Bebas"}\nPanjang: ${len}\nGaya: ${style||"Bebas"}\nCatatan: ${extra||"Tidak ada"}\n\nFormat: deskripsi adegan + dialog karakter (NAMA KARAKTER: dialog) + petunjuk aksi, dengan konflik dramatis yang jelas.`,
       post: (idea, sel, len, style, extra) => `Tulis postingan media sosial viral berdasarkan berikut ini.\n\nKonten: ${idea}\nPlatform: ${sel||"Instagram"}\nPanjang: ${len}\nGaya: ${style||"Bebas"}\nCatatan: ${extra||"Tidak ada"}\n\nPersyaratan: hook di 3 baris pertama, gunakan baris baru dan emoji, sertakan nilai atau resonansi emosional, akhiri dengan CTA engagement, tambahkan 5 hashtag relevan.`,
+      paper: (idea, sel, len, style, extra) => `Tulis makalah akademik.\n\nTopik: ${idea}\nTipe: ${sel||"Umum"}\nPanjang: ${len}\nGaya: ${style||"Akademik"}\nCatatan: ${extra||"Tidak ada"}`,
+      qa: (idea, sel, len, style, extra) => `Jawab pertanyaan ini dengan jujur.\n\nPertanyaan: ${idea}\nFormat: ${sel||"Jelas"}\nPanjang: ${len}\nCatatan: ${extra||"Tidak ada"}`,
     },
     vipTag: "PRO",
     timeRemaining: "Sisa Waktu"
@@ -356,8 +404,12 @@ export default function Home() {
 
   const [mode, setMode] = useState("novel");
   const [idea, setIdea] = useState("");
+  // 安全的增加新的状态，防止串联
   const [genre, setGenre] = useState("");
   const [copyType, setCopyType] = useState("");
+  const [paperType, setPaperType] = useState("");
+  const [qaType, setQaType] = useState("");
+  
   const [length, setLength] = useState("medium");
   const [style, setStyle] = useState("");
   const [extraNote, setExtraNote] = useState("");
@@ -368,12 +420,29 @@ export default function Home() {
   const [wordCount, setWordCount] = useState(0);
   const outputRef = useRef(null);
 
+  // 动态解析当前模式下的标签和选择器
+  let currentTags = [];
+  let currentSel = "";
+  let setCurrentSel = () => {};
+  let tagLabel = "";
+
+  if (mode === "novel" || mode === "script") {
+    currentTags = t.genres; currentSel = genre; setCurrentSel = setGenre; tagLabel = t.genreLabel;
+  } else if (mode === "post") {
+    currentTags = t.postTypes; currentSel = copyType; setCurrentSel = setCopyType; tagLabel = t.postLabel;
+  } else if (mode === "paper") {
+    currentTags = t.paperTypes; currentSel = paperType; setCurrentSel = setPaperType; tagLabel = t.paperLabel;
+  } else if (mode === "qa") {
+    currentTags = t.qaTypes; currentSel = qaType; setCurrentSel = setQaType; tagLabel = t.qaLabel;
+  } else {
+    currentTags = t.copyTypes; currentSel = copyType; setCurrentSel = setCopyType; tagLabel = t.copyTypeLabel;
+  }
+
   const generate = async () => {
     if (!idea.trim()) { setErr(t.errEmpty); return; }
     setErr(""); setLoading(true); setOutput(""); setWordCount(0);
 
     const lenLabel = t.lengthMap[length];
-    const currentSel = mode === "novel" || mode === "script" ? genre : copyType;
 
     try {
       setStreaming(true);
@@ -417,10 +486,6 @@ export default function Home() {
       setStreaming(false);
     }
   };
-
-  const currentTags = mode === "novel" || mode === "script" ? t.genres : t.copyTypes;
-  const currentSel = mode === "novel" || mode === "script" ? genre : copyType;
-  const setCurrentSel = mode === "novel" || mode === "script" ? setGenre : setCopyType;
 
   const selectStyle = {
     width: "100%", background: S.surface, border: `1px solid ${S.border}`,
@@ -532,10 +597,10 @@ export default function Home() {
 
             <div>
               <label style={{ fontSize: 12, color: S.muted, display: "block", marginBottom: 8 }}>
-                {mode === "novel" || mode === "script" ? t.genreLabel : mode === "post" ? t.postLabel : t.copyTypeLabel}
+                {tagLabel}
               </label>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {(mode === "post" ? t.postTypes : currentTags).map(tag => (
+                {currentTags.map(tag => (
                   <Tag key={tag} label={tag} active={currentSel === tag} onClick={() => setCurrentSel(currentSel === tag ? "" : tag)} />
                 ))}
               </div>
@@ -603,7 +668,9 @@ export default function Home() {
           <div ref={outputRef} style={{ flex: 1, overflowY: "auto", padding: 24 }}>
             {!output && !loading && (
               <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: S.muted, gap: 16 }}>
-                <div style={{ fontSize: 64, opacity: 0.15 }}>{mode === "novel" ? "📖" : mode === "copy" ? "✍️" : mode === "script" ? "🎬" : "📱"}</div>
+                <div style={{ fontSize: 64, opacity: 0.15 }}>
+                  {mode === "novel" ? "📖" : mode === "copy" ? "✍️" : mode === "script" ? "🎬" : mode === "post" ? "📱" : mode === "paper" ? "🎓" : "💬"}
+                </div>
                 <div style={{ textAlign: "center" }}>
                   <div style={{ fontSize: 15, marginBottom: 6 }}>{t.placeholder1}</div>
                   <div style={{ fontSize: 13, opacity: 0.7 }}>{t.placeholder2}</div>
