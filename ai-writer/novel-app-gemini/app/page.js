@@ -49,7 +49,7 @@ const TRANSLATIONS = {
     styles: ["正式严肃", "轻松幽默", "文艺感性", "犀利直接", "温暖治愈", "客观严谨"],
     styleDefault: "不限风格",
     btnGenerate: "✨ 开始创作",
-    btnGenerating: "⏳ 创作中...",
+    btnStop: "⏹️ 停止生成",
     btnCopy: "复制全文",
     btnCopied: "✓ 已复制",
     resultLabel: "创作结果",
@@ -57,11 +57,12 @@ const TRANSLATIONS = {
     streaming: "正在创作...",
     placeholder1: "在左侧输入你的想法或问题",
     placeholder2: "AI 将为你生成高质量内容",
-    tags: ["灵感无限", "真实客观", "一键复制"],
+    tags: ["灵感无限", "真实客观", "随时叫停"],
     thinking: "AI 正在构思逻辑与查阅知识库...",
     errEmpty: "请输入你的想法或问题",
     errFail: "生成失败：",
     errRetry: "请求失败，请稍后重试",
+    errAborted: "⚠️ 创作已中止",
     lengthMap: { short: "500字左右", medium: "1500字左右", long: "3000字左右" },
     systemPrompts: {
       novel: "你是一位顶级小说作家，擅长各类题材。文字生动、情节紧凑、人物立体。直接输出小说正文，不要加任何说明或前缀。",
@@ -128,7 +129,7 @@ const TRANSLATIONS = {
     styles: ["正式嚴肅", "輕鬆幽默", "文藝感性", "犀利直接", "溫暖療癒", "客觀嚴謹"],
     styleDefault: "不限風格",
     btnGenerate: "✨ 開始創作",
-    btnGenerating: "⏳ 創作中...",
+    btnStop: "⏹️ 停止生成",
     btnCopy: "複製全文",
     btnCopied: "✓ 已複製",
     resultLabel: "創作結果",
@@ -136,11 +137,12 @@ const TRANSLATIONS = {
     streaming: "正在創作...",
     placeholder1: "在左側輸入你的想法或問題",
     placeholder2: "AI 將為你生成完整內容",
-    tags: ["靈感無限", "真實客觀", "一鍵複製"],
+    tags: ["靈感無限", "真實客觀", "隨時叫停"],
     thinking: "AI 正在構思邏輯...",
     errEmpty: "請輸入你的想法或問題",
     errFail: "生成失敗：",
     errRetry: "請求失敗，請稍後重試",
+    errAborted: "⚠️ 創作已中止",
     lengthMap: { short: "500字左右", medium: "1500字左右", long: "3000字左右" },
     systemPrompts: {
       novel: "你是一位頂級小說作家，擅長各類題材。文字生動、情節緊湊、人物立體。直接輸出小說正文，不要加任何說明或前綴。",
@@ -207,7 +209,7 @@ const TRANSLATIONS = {
     styles: ["Formal", "Casual & Funny", "Literary", "Sharp & Direct", "Warm & Cozy", "Academic"],
     styleDefault: "Any Style",
     btnGenerate: "✨ Generate",
-    btnGenerating: "⏳ Writing...",
+    btnStop: "⏹️ Stop Generation",
     btnCopy: "Copy All",
     btnCopied: "✓ Copied",
     resultLabel: "Result",
@@ -215,11 +217,12 @@ const TRANSLATIONS = {
     streaming: "Writing...",
     placeholder1: "Enter your request",
     placeholder2: "AI will generate it",
-    tags: ["Creative", "Factual", "Fast"],
+    tags: ["Creative", "Factual", "Cancel Anytime"],
     thinking: "AI is gathering facts...",
     errEmpty: "Please enter your idea or question",
     errFail: "Generation failed: ",
     errRetry: "Request failed, please try again",
+    errAborted: "⚠️ Generation stopped",
     lengthMap: { short: "around 300 words", medium: "around 800 words", long: "around 1500 words" },
     systemPrompts: {
       novel: "You are a top-tier fiction writer skilled in all genres. Write vivid prose with compelling plots and well-rounded characters. Output only the story text, no explanations or prefixes.",
@@ -286,7 +289,7 @@ const TRANSLATIONS = {
     styles: ["Formal", "Santai & Lucu", "Sastrawi", "Tajam & Langsung", "Hangat & Nyaman", "Akademik"],
     styleDefault: "Gaya Bebas",
     btnGenerate: "✨ Buat Konten",
-    btnGenerating: "⏳ Sedang menulis...",
+    btnStop: "⏹️ Berhenti",
     btnCopy: "Salin Semua",
     btnCopied: "✓ Tersalin",
     resultLabel: "Hasil",
@@ -294,11 +297,12 @@ const TRANSLATIONS = {
     streaming: "Sedang menulis...",
     placeholder1: "Masukkan permintaan Anda",
     placeholder2: "AI akan membuat konten untuk Anda",
-    tags: ["Ide Tak Terbatas", "Faktual", "Salin Sekali Klik"],
+    tags: ["Ide Tak Terbatas", "Faktual", "Hentikan Kapan Saja"],
     thinking: "AI sedang mencari fakta...",
     errEmpty: "Harap masukkan ide atau pertanyaan Anda",
     errFail: "Pembuatan gagal: ",
     errRetry: "Permintaan gagal, silakan coba lagi",
+    errAborted: "⚠️ Pembuatan dihentikan",
     lengthMap: { short: "sekitar 300 kata", medium: "sekitar 800 kata", long: "sekitar 1500 kata" },
     systemPrompts: {
       novel: "Anda adalah penulis fiksi kelas dunia yang ahli di semua genre. Tulis prosa yang vivid dengan alur yang menarik dan karakter yang kuat. Output hanya teks cerita, tanpa penjelasan atau awalan.",
@@ -324,7 +328,7 @@ const TRANSLATIONS = {
 const S = {
   bg: "#0d0d14", surface: "#13131f", card: "#1c1c2e", border: "#2d2d45",
   accent: "#7c6ff7", accent2: "#f06292", gold: "#fbbf24",
-  text: "#eeeef5", muted: "#6b6b90", success: "#34d399",
+  text: "#eeeef5", muted: "#6b6b90", success: "#34d399", stop: "#ef4444"
 };
 
 function Tag({ label, active, onClick }) {
@@ -364,7 +368,6 @@ export default function Home() {
   const [showLangMenu, setShowLangMenu] = useState(false);
   const t = TRANSLATIONS[lang];
 
-  // --- 核心修改：双模式倒计时逻辑 ---
   const [timeLeft, setTimeLeft] = useState("");
   useEffect(() => {
     const timer = setInterval(() => {
@@ -373,22 +376,20 @@ export default function Home() {
       const actTimeStr = cookies.find(row => row.startsWith('activation_time='))?.split('=')[1];
       const validDaysStr = cookies.find(row => row.startsWith('valid_days='))?.split('=')[1];
 
-      // 1. 如果是永久用户，直接显示永久，不走倒计时
       if (userType === 'permanent') {
         setTimeLeft(lang === 'zh' || lang === 'tw' ? "∞ 永久有效" : "∞ Permanent");
         return;
       }
 
-      // 2. 如果是限时用户，动态计算剩余时间
       if (actTimeStr) {
         const activationTime = parseInt(actTimeStr);
-        const validDays = validDaysStr ? parseInt(validDaysStr) : 30; // 默认30天防错
+        const validDays = validDaysStr ? parseInt(validDaysStr) : 30; 
         const expiryTime = activationTime + (validDays * 24 * 60 * 60 * 1000); 
         const diff = expiryTime - Date.now();
 
         if (diff <= 0) {
           setTimeLeft(lang === 'zh' || lang === 'tw' ? "已过期" : "Expired");
-          window.location.reload(); // 到期自动刷新拦截
+          window.location.reload(); 
         } else {
           const d = Math.floor(diff / (1000 * 60 * 60 * 24));
           const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
@@ -399,12 +400,10 @@ export default function Home() {
       }
     }, 1000);
     return () => clearInterval(timer);
-  }, [lang]); // 依赖中加入 lang，切换语言时“永久有效”也会跟着翻译
-  // ----------------------
+  }, [lang]); 
 
   const [mode, setMode] = useState("novel");
   const [idea, setIdea] = useState("");
-  // 安全的增加新的状态，防止串联
   const [genre, setGenre] = useState("");
   const [copyType, setCopyType] = useState("");
   const [paperType, setPaperType] = useState("");
@@ -418,9 +417,12 @@ export default function Home() {
   const [streaming, setStreaming] = useState(false);
   const [err, setErr] = useState("");
   const [wordCount, setWordCount] = useState(0);
+  
   const outputRef = useRef(null);
+  
+  // 🛑 新增：用于随时叫停 AI 生成的控制器
+  const abortControllerRef = useRef(null);
 
-  // 动态解析当前模式下的标签和选择器
   let currentTags = [];
   let currentSel = "";
   let setCurrentSel = () => {};
@@ -442,6 +444,9 @@ export default function Home() {
     if (!idea.trim()) { setErr(t.errEmpty); return; }
     setErr(""); setLoading(true); setOutput(""); setWordCount(0);
 
+    // 创建新的中断控制器
+    abortControllerRef.current = new AbortController();
+
     const lenLabel = t.lengthMap[length];
 
     try {
@@ -453,6 +458,7 @@ export default function Home() {
           system: t.systemPrompts[mode],
           user: t.userPrompts[mode](idea, currentSel, lenLabel, style, extraNote),
         }),
+        signal: abortControllerRef.current.signal // 传入刹车信号
       });
 
       if (!res.ok) throw new Error(t.errRetry);
@@ -480,10 +486,22 @@ export default function Home() {
         }
       }
     } catch (e) {
-      setErr(t.errFail + e.message);
+      // 如果是我们主动按下的停止按钮，不报错，而是温和提示
+      if (e.name === 'AbortError') {
+        setErr(t.errAborted);
+      } else {
+        setErr(t.errFail + e.message);
+      }
     } finally {
       setLoading(false);
       setStreaming(false);
+    }
+  };
+
+  // 🛑 新增：停止生成的方法
+  const stopGeneration = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort(); // 触发急刹车
     }
   };
 
@@ -511,7 +529,6 @@ export default function Home() {
 
       {/* 顶部工具栏：语言切换 + 倒计时 */}
       <div style={{ position: "fixed", top: 16, right: 16, zIndex: 100, display: "flex", gap: 10 }}>
-        {/* 倒计时显示组件 */}
         {timeLeft && (
           <div style={{
             background: "rgba(52,211,153,0.1)", border: "1px solid rgba(52,211,153,0.3)", 
@@ -629,17 +646,31 @@ export default function Home() {
                 style={{ width: "100%", background: S.surface, border: `1px solid ${S.border}`, color: S.text, padding: "9px 12px", borderRadius: 10, fontSize: 13, fontFamily: "inherit", resize: "none" }} />
             </div>
 
-            {err && <div style={{ color: "#f87171", fontSize: 13, padding: "8px 12px", background: "rgba(248,113,113,0.08)", borderRadius: 8 }}>{err}</div>}
+            {err && <div style={{ color: err === t.errAborted ? "#fbbf24" : "#f87171", fontSize: 13, padding: "8px 12px", background: err === t.errAborted ? "rgba(251,191,36,0.1)" : "rgba(248,113,113,0.08)", borderRadius: 8 }}>{err}</div>}
 
-            <button onClick={generate} disabled={loading} style={{
-              width: "100%", padding: 14, marginTop: "auto",
-              background: loading ? "#2a2a3e" : "linear-gradient(135deg,#7c6ff7,#f06292)",
-              border: "none", borderRadius: 12, color: "#fff", fontSize: 15,
-              fontWeight: 700, cursor: loading ? "not-allowed" : "pointer",
-              fontFamily: "inherit", opacity: loading ? 0.7 : 1, transition: "all 0.2s",
-            }}>
-              {loading ? t.btnGenerating : t.btnGenerate}
-            </button>
+            {/* 🛑 核心修改：生成按钮与停止按钮动态切换 */}
+            {!loading ? (
+              <button onClick={generate} style={{
+                width: "100%", padding: 14, marginTop: "auto",
+                background: "linear-gradient(135deg,#7c6ff7,#f06292)",
+                border: "none", borderRadius: 12, color: "#fff", fontSize: 15,
+                fontWeight: 700, cursor: "pointer",
+                fontFamily: "inherit", transition: "all 0.2s",
+              }}>
+                {t.btnGenerate}
+              </button>
+            ) : (
+              <button onClick={stopGeneration} style={{
+                width: "100%", padding: 14, marginTop: "auto",
+                background: "rgba(239, 68, 68, 0.15)",
+                border: "1px solid rgba(239, 68, 68, 0.4)", 
+                borderRadius: 12, color: S.stop, fontSize: 15,
+                fontWeight: 700, cursor: "pointer",
+                fontFamily: "inherit", transition: "all 0.2s",
+              }}>
+                {t.btnStop}
+              </button>
+            )}
           </div>
         </div>
 
