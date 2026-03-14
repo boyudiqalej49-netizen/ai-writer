@@ -1,11 +1,9 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { ShieldCheck, Zap, Clock } from "lucide-react"; // 增加了 Clock 图标
+import { ShieldCheck, Zap, Clock } from "lucide-react"; 
 
-// ... 这里保持你原来的 TRANSLATIONS 和 S 常量不变 ...
 const TRANSLATIONS = {
   zh: {
-    // ... 原有内容 ...
     name: "简体中文",
     badge: "✦ AI创作工坊",
     title1: "一键生成",
@@ -69,12 +67,10 @@ const TRANSLATIONS = {
       script: (idea, sel, len, style, extra) => `根据以下想法创作剧本。\n\n故事：${idea}\n风格：${sel||"不限"}\n长度：${len}\n风格：${style||"不限"}\n要求：${extra||"无"}\n\n格式：场景说明 + 人物对话（角色名：台词）+ 动作指示，有明确的戏剧冲突。`,
       post: (idea, sel, len, style, extra) => `根据以下想法创作爆款自媒体内容。\n\n内容：${idea}\n平台：${sel||"小红书"}\n字数：${len}\n风格：${style||"不限"}\n要求：${extra||"无"}\n\n要求：开头3行抓眼球、多用换行和emoji、有干货或情感共鸣、结尾引导互动、附上5个话题标签。`,
     },
-    // 新增翻译
     vipTag: "专业版",
     timeRemaining: "剩余时间"
   },
   tw: {
-    // ... 原有繁体内容 ...
     name: "繁體中文",
     badge: "✦ AI創作工坊",
     title1: "一鍵生成",
@@ -142,7 +138,6 @@ const TRANSLATIONS = {
     timeRemaining: "剩餘時間"
   },
   en: {
-    // ... 原有英文内容 ...
     name: "English",
     badge: "✦ AI Writer Studio",
     title1: "Generate Instantly",
@@ -210,7 +205,6 @@ const TRANSLATIONS = {
     timeRemaining: "Time Left"
   },
   id: {
-    // ... 原有印尼语内容 ...
     name: "Indonesia",
     badge: "✦ Studio Penulis AI",
     title1: "Buat Sekarang",
@@ -285,7 +279,6 @@ const S = {
   text: "#eeeef5", muted: "#6b6b90", success: "#34d399",
 };
 
-// ... 原有的 Tag 和 CopyBtn 组件保持不变 ...
 function Tag({ label, active, onClick }) {
   return (
     <button onClick={onClick} style={{
@@ -323,20 +316,30 @@ export default function Home() {
   const [showLangMenu, setShowLangMenu] = useState(false);
   const t = TRANSLATIONS[lang];
 
-  // --- 新增：倒计时逻辑 ---
+  // --- 核心修改：双模式倒计时逻辑 ---
   const [timeLeft, setTimeLeft] = useState("");
   useEffect(() => {
     const timer = setInterval(() => {
       const cookies = document.cookie.split('; ');
+      const userType = cookies.find(row => row.startsWith('user_type='))?.split('=')[1];
       const actTimeStr = cookies.find(row => row.startsWith('activation_time='))?.split('=')[1];
-      
+      const validDaysStr = cookies.find(row => row.startsWith('valid_days='))?.split('=')[1];
+
+      // 1. 如果是永久用户，直接显示永久，不走倒计时
+      if (userType === 'permanent') {
+        setTimeLeft(lang === 'zh' || lang === 'tw' ? "∞ 永久有效" : "∞ Permanent");
+        return;
+      }
+
+      // 2. 如果是限时用户，动态计算剩余时间
       if (actTimeStr) {
         const activationTime = parseInt(actTimeStr);
-        const expiryTime = activationTime + (30 * 24 * 60 * 60 * 1000); // 30天后到期
+        const validDays = validDaysStr ? parseInt(validDaysStr) : 30; // 默认30天防错
+        const expiryTime = activationTime + (validDays * 24 * 60 * 60 * 1000); 
         const diff = expiryTime - Date.now();
 
         if (diff <= 0) {
-          setTimeLeft("Expired");
+          setTimeLeft(lang === 'zh' || lang === 'tw' ? "已过期" : "Expired");
           window.location.reload(); // 到期自动刷新拦截
         } else {
           const d = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -348,7 +351,7 @@ export default function Home() {
       }
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [lang]); // 依赖中加入 lang，切换语言时“永久有效”也会跟着翻译
   // ----------------------
 
   const [mode, setMode] = useState("novel");
