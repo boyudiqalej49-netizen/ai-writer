@@ -5,8 +5,8 @@ export async function POST(req) {
   try {
     const { cdk } = await req.json();
     
-    // 1. 连接 Redis 数据库
-    const client = createClient({ url: process.env.REDIS_URL });
+    // 1. 连接 Redis 数据库 (已切换为带密码的专属钥匙 CUSTOM_REDIS_URL)
+    const client = createClient({ url: process.env.CUSTOM_REDIS_URL });
     await client.connect();
 
     // 2. 去数据库里查这把钥匙
