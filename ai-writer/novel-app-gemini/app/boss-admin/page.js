@@ -107,4 +107,40 @@ export default function AdminMaker() {
         <div style={{ marginBottom: "16px" }}>
           <label style={{ fontSize: "12px", color: "#aaa", marginBottom: "6px", display: "block" }}>{t.typeLabel}</label>
           <select value={type} onChange={(e) => setType(e.target.value)}
-            style={{ width: "100%", padding: "12px", background: "#222", border: "1px solid #444", color: "#fff", borderRadius: "8px", outline
+            style={{ width: "100%", padding: "12px", background: "#222", border: "1px solid #444", color: "#fff", borderRadius: "8px", outline: "none", boxSizing: "border-box", appearance: "none" }}>
+            <option value="limited">{t.typeLimited}</option>
+            <option value="permanent">{t.typePermanent}</option>
+          </select>
+        </div>
+
+        {/* 天数输入 (只有限时卡才显示) */}
+        {type === "limited" && (
+          <div style={{ marginBottom: "24px" }}>
+            <label style={{ fontSize: "12px", color: "#aaa", marginBottom: "6px", display: "block" }}>{t.daysLabel}</label>
+            <input type="number" value={days} onChange={(e) => setDays(Number(e.target.value))} min="1"
+              style={{ width: "100%", padding: "12px", background: "#222", border: "1px solid #444", color: "#fff", borderRadius: "8px", outline: "none", boxSizing: "border-box" }} />
+          </div>
+        )}
+
+        {error && <div style={{ color: "#ef4444", fontSize: "13px", marginBottom: "16px", textAlign: "center", background: "rgba(239,68,68,0.1)", padding: "8px", borderRadius: "8px" }}>{error}</div>}
+
+        <button onClick={handleGenerate} disabled={loading}
+          style={{ width: "100%", padding: "14px", background: "linear-gradient(135deg,#7c6ff7,#f06292)", border: "none", color: "#fff", fontWeight: "bold", borderRadius: "8px", cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1 }}>
+          {loading ? t.btnGenerating : t.btnGenerate}
+        </button>
+
+        {/* 结果展示区 */}
+        {resultCdk && (
+          <div style={{ marginTop: "24px", padding: "16px", background: "rgba(52,211,153,0.1)", border: "1px solid rgba(52,211,153,0.3)", borderRadius: "8px", textAlign: "center" }}>
+            <div style={{ fontSize: "12px", color: "#34d399", marginBottom: "8px" }}>{t.successMsg}</div>
+            <div style={{ fontSize: "20px", fontWeight: "bold", letterSpacing: "1px", color: "#fff", marginBottom: "12px", fontFamily: "monospace" }}>{resultCdk}</div>
+            <button onClick={copyToClipboard} style={{ background: "#34d399", color: "#000", border: "none", padding: "6px 16px", borderRadius: "100px", fontSize: "12px", fontWeight: "bold", cursor: "pointer" }}>
+              {t.btnCopy}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+// --- 代码结束 ---
