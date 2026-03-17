@@ -71,13 +71,13 @@ export default function Home() {
       const userType = cookies.find(row => row.startsWith('user_type='))?.split('=')[1];
       const actTimeStr = cookies.find(row => row.startsWith('activation_time='))?.split('=')[1];
       const validDaysStr = cookies.find(row => row.startsWith('valid_days='))?.split('=')[1];
-      if (userType === 'permanent') { setTimeLeft(lang === 'zh' || lang === 'tw' ? "∞ 永久有效" : "∞ Permanent"); return; }
+      if (userType === 'permanent') { setTimeLeft("∞ 永久有效"); return; }
       if (actTimeStr) {
         const activationTime = parseInt(actTimeStr);
         const validDays = validDaysStr ? parseInt(validDaysStr) : 30; 
         const expiryTime = activationTime + (validDays * 24 * 60 * 60 * 1000); 
         const diff = expiryTime - Date.now();
-        if (diff <= 0) { setTimeLeft(lang === 'zh' || lang === 'tw' ? "已过期" : "Expired"); window.location.reload(); }
+        if (diff <= 0) { setTimeLeft("Expired"); window.location.reload(); }
         else {
           const d = Math.floor(diff / (1000 * 60 * 60 * 24));
           const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
@@ -122,9 +122,9 @@ export default function Home() {
 
     if (mode === "image") {
       const seed = Math.floor(Math.random() * 999999);
-      // ✅ 修正接口为 image.pollinations.ai 专用生成接口
-      const finalPrompt = `${idea} ${style} ${extraNote}`.trim();
-      const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?width=1024&height=1024&seed=${seed}&nologo=true`;
+      // ✅ 终极修正：强制指定 model=flux 且使用 https://image.pollinations.ai 路径
+      const prompt = encodeURIComponent(`${idea} ${style} ${extraNote}`.trim());
+      const imageUrl = `https://image.pollinations.ai/prompt/${prompt}?width=1024&height=1024&seed=${seed}&model=flux&nologo=true`;
       setOutput(imageUrl);
       setLoading(false); 
       return;
@@ -173,7 +173,7 @@ export default function Home() {
         textarea:focus, select:focus { outline: none !important; border-color: #7c6ff7 !important; box-shadow: 0 0 0 3px rgba(124,111,247,0.15) !important; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #2d2d45; border-radius: 3px; }
-        .img-glow { box-shadow: 0 0 40px rgba(124,111,247,0.3); border: 1px solid rgba(124,111,247,0.2); transition: all 0.5s ease; }
+        .img-glow { box-shadow: 0 0 40px rgba(124,111,247,0.3); border: 1px solid rgba(124,111,247,0.2); transition: opacity 0.5s ease; }
         @media (max-width: 768px) { .layout { grid-template-columns: 1fr !important; } .right-panel { min-height: 400px !important; } }
       `}</style>
 
@@ -181,7 +181,7 @@ export default function Home() {
       <div style={{ position: "fixed", top: 16, right: 16, zIndex: 100, display: "flex", gap: 10 }}>
         {timeLeft && (
           <div style={{ background: "rgba(52,211,153,0.1)", border: "1px solid rgba(52,211,153,0.3)", color: S.success, padding: "8px 14px", borderRadius: 10, fontSize: 13, display: "flex", alignItems: "center", gap: 8, backdropFilter: "blur(10px)" }}>
-            <Clock size={14} /> <span style={{opacity: 0.8}}>{t.timeRemaining}:</span> <b style={{fontFamily: "monospace"}}>{timeLeft}</b>
+            <Clock size={14} /> <b style={{fontFamily: "monospace"}}>{timeLeft}</b>
           </div>
         )}
         <button onClick={() => setShowLangMenu(!showLangMenu)} style={{ background: S.card, border: `1px solid ${S.border}`, color: S.text, padding: "8px 14px", borderRadius: 10, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 8 }}>
@@ -263,7 +263,18 @@ export default function Home() {
               <div style={{ animation: "fadeIn 0.3s ease", lineHeight: 2, fontSize: 15, color: S.text }}>
                 {mode === "image" ? (
                   <div style={{ textAlign: "center", padding: "20px 0" }}>
-                    <img key={output} src={output} alt="AI Art" className="img-glow" style={{ maxWidth: "100%", borderRadius: 16, cursor: "zoom-in" }} onClick={() => window.open(output, '_blank')} />
+                    <img 
+                      key={output} 
+                      src={output} 
+                      alt="AI Art" 
+                      className="img-glow" 
+                      style={{ maxWidth: "100%", borderRadius: 16, cursor: "zoom-in" }} 
+                      onClick={() => window.open(output, '_blank')}
+                      onError={(e) => {
+                        e.target.src = "https://via.placeholder.com/1024x1024.png?text=Network+Error+Please+Retry";
+                        console.error("Image load failed");
+                      }}
+                    />
                     <p style={{ marginTop: 20, fontSize: 13, color: S.muted, fontStyle: "italic" }}>✨ Flux Pro Render Engine (Free)</p>
                   </div>
                 ) : ( <div style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{output}{streaming && <span style={{ display: "inline-block", width: 2, height: "1em", background: S.accent, marginLeft: 2, animation: "pulse 0.8s infinite", verticalAlign: "text-bottom" }} />}</div> )}
